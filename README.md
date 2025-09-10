@@ -14,7 +14,8 @@ A Python-based tool that automatically generates well-structured lab reports usi
 ## Prerequisites
 
 - Python 3.x
-- Google Gemini API key
+- Google Gemini API key (Get it from https://ai.google.dev/)
+
 
 ## Installation
 
