@@ -83,7 +83,7 @@ The generated lab report includes the following sections:
 
 ## Sample Output
 
-[Place for output screenshot]
+![Output screenshot](./Screenshot 2025-09-10 102910.jpg)
 
 ## Dependencies
 
