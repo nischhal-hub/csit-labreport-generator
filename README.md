@@ -24,8 +24,13 @@ A Python-based tool that automatically generates well-structured lab reports usi
 git clone https://github.com/yourusername/lab-gen-pyscript.git
 cd lab-gen-pyscript
 ```
-
-2. Install the required dependencies:
+2. Initialize venv
+```bash
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+   
+4. Install the required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
