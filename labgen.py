@@ -89,7 +89,7 @@ class LabReportGenerator:
         add_subheader("2. THEORY")
         add_paragraph(data.get("theory", ""))
 
-        add_subheader("3. IMPLEMENTATION IN JAVA")
+        add_subheader("3. IMPLEMENTATION")
         add_code(data.get("implementation", ""))
 
         add_subheader("4. OUTPUT")
