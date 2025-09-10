@@ -1,97 +1,121 @@
 import json
+import argparse
 from docx import Document
 from docx.shared import Pt, Inches
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from google import genai
+from google.genai import types
 
-def generate_lab_report(data, filename="lab_report.docx"):
-    # Create document
-    doc = Document()
 
-    # Set margins (Left=1.5, others=1)
-    sections = doc.sections
-    for section in sections:
-        section.left_margin = Inches(1.5)
-        section.right_margin = Inches(1)
-        section.top_margin = Inches(1)
-        section.bottom_margin = Inches(1)
+class LabReportGenerator:
+    def __init__(self, api_key: str, filename: str = "lab_report.docx"):
+        self.client = genai.Client(api_key=api_key)
+        self.filename = filename
 
-    # Helper function for formatting
-    def add_header(text):
-        p = doc.add_paragraph(text.upper())
-        run = p.runs[0]
-        run.font.size = Pt(16)
-        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        return p
+    def get_genai_response(self, prompt: str) -> dict:
+        """Fetch structured response from Gemini API."""
+        json_schema = types.Schema(
+            type="OBJECT",
+            properties={
+                "topic": types.Schema(type="STRING"),
+                "objective": types.Schema(
+                    type="ARRAY", items=types.Schema(type="STRING")
+                ),
+                "theory": types.Schema(type="STRING"),
+                "implementation": types.Schema(type="STRING"),
+                "conclusion": types.Schema(type="STRING"),
+            },
+        )
+        specific_instruction = "The 'implementation' field should contain well-formatted, multi-line Java code with proper indentation."
+        response = self.client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt + " " + specific_instruction,
+            config=types.GenerateContentConfig(
+                responseMimeType="application/json",
+                responseSchema=json_schema,
+                temperature=0.2,
+            ),
+        )
+        return json.loads(response.text)
 
-    def add_subheader(text):
-        p = doc.add_paragraph(text)
-        run = p.runs[0]
-        run.font.size = Pt(14)
-        run.bold = True
-        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        return p
+    def generate_document(self, data: dict):
+        """Generate lab report as a .docx file."""
+        doc = Document()
 
-    def add_paragraph(text):
-        p = doc.add_paragraph(text)
-        run = p.runs[0]
-        run.font.size = Pt(12)
-        p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
-        return p
+        # Set margins (Left=1.5, others=1)
+        for section in doc.sections:
+            section.left_margin = Inches(1.5)
+            section.right_margin = Inches(1)
+            section.top_margin = Inches(1)
+            section.bottom_margin = Inches(1)
 
-    def add_code(text):
-        p = doc.add_paragraph(text)
-        run = p.runs[0]
-        run.font.size = Pt(12)
-        run.italic = True
-        p.alignment = WD_ALIGN_PARAGRAPH.LEFT
-        return p
+        # --- Formatting helpers ---
+        def add_header(text: str):
+            p = doc.add_paragraph(text.upper())
+            run = p.runs[0]
+            run.font.size = Pt(16)
+            run.bold = True
+            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
-    # --- Start Writing Report ---
-    # Topic
-    add_header(f"TOPIC: {data['topic']}")
+        def add_subheader(text: str):
+            p = doc.add_paragraph(text)
+            run = p.runs[0]
+            run.font.size = Pt(14)
+            run.bold = True
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
-    # Objective
-    add_subheader("1. OBJECTIVE")
-    for obj in data["objective"]:
-        obj_para = doc.add_paragraph(style="List Bullet")
-        run = obj_para.add_run(obj)
-        run.font.size = Pt(12)
+        def add_paragraph(text: str):
+            p = doc.add_paragraph(text)
+            run = p.runs[0]
+            run.font.size = Pt(12)
+            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
-    # Theory
-    add_subheader("2. THEORY")
-    add_paragraph(data["theory"])
+        def add_code(text: str):
+            p = doc.add_paragraph(text)
+            run = p.runs[0]
+            run.font.size = Pt(12)
+            run.italic = True
+            p.alignment = WD_ALIGN_PARAGRAPH.LEFT
 
-    # Implementation
-    add_subheader("3. IMPLEMENTATION IN JAVA")
-    add_code(data["implementation"])
+        # --- Start Writing Report ---
+        add_header(f"TOPIC: {data['topic']}")
 
-    # Output (screenshot placeholder)
-    add_subheader("4. OUTPUT")
-    add_paragraph("[Screenshot will be added here]")
+        add_subheader("1. OBJECTIVE")
+        for obj in data.get("objective", []):
+            obj_para = doc.add_paragraph(style="List Bullet")
+            run = obj_para.add_run(obj)
+            run.font.size = Pt(12)
 
-    # Conclusion
-    add_subheader("5. CONCLUSION")
-    add_paragraph(data["conclusion"])
+        add_subheader("2. THEORY")
+        add_paragraph(data.get("theory", ""))
 
-    # Save document
-    doc.save(filename)
-    print(f"✅ Lab report saved as {filename}")
+        add_subheader("3. IMPLEMENTATION IN JAVA")
+        add_code(data.get("implementation", ""))
+
+        add_subheader("4. OUTPUT")
+        add_paragraph("[Screenshot will be added here]")
+
+        add_subheader("5. CONCLUSION")
+        add_paragraph(data.get("conclusion", ""))
+
+        # Save document
+        doc.save(self.filename)
+        print(f"✅ Lab report saved as {self.filename}")
 
 
 if __name__ == "__main__":
-    # Example JSON input
-    json_data = """
-    {
-        "topic": "Inheritance in Java",
-        "objective": [
-            "To understand the concept of inheritance in Java",
-            "To implement single inheritance using classes"
-        ],
-        "theory": "Inheritance in Java allows a class to acquire properties and behavior of another class. It promotes code reusability and establishes a parent-child relationship among classes. The parent class is known as the superclass, while the child class is called the subclass. This mechanism enables developers to extend existing classes without rewriting code, making programs easier to manage and scale.",
-        "implementation": "class Animal {\\n    void eat() { System.out.println(\\\"eating...\\\"); }\\n}\\nclass Dog extends Animal {\\n    void bark() { System.out.println(\\\"barking...\\\"); }\\n}\\nclass TestInheritance {\\n    public static void main(String args[]) {\\n        Dog d=new Dog();\\n        d.bark();\\n        d.eat();\\n    }\\n}",
-        "conclusion": "Through this experiment, we learned how inheritance allows a class to reuse the fields and methods of another class. It provides a way to organize code in a hierarchical manner, reducing redundancy and improving maintainability. By implementing inheritance, Java programs become more modular and scalable."
-    }
-    """
+    parser = argparse.ArgumentParser(description="Generate Lab Report using Gemini API")
+    parser.add_argument("--api", help="Your Gemini API key")
+    parser.add_argument("--prompt", help="Prompt for generating the lab report")
+    parser.add_argument("--file", help="Output file name (default: lab_report.docx)")
 
-    data = json.loads(json_data)
-    generate_lab_report(data)
+    args = parser.parse_args()
+
+    # Ask interactively if args are missing
+    api_key = args.api or input("🔑 Enter your Gemini API key: ").strip()
+    prompt = args.prompt or input("📝 Enter your lab report prompt: ").strip()
+    filename = args.file or input("📂 Enter output file name (default: lab_report.docx): ").strip() or "lab-report.docx"
+
+    generator = LabReportGenerator(api_key=api_key, filename=filename)
+    data = generator.get_genai_response(prompt)
+    generator.generate_document(data)
