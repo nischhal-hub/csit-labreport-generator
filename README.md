@@ -2,14 +2,9 @@
 
 A Python-based tool that automatically generates well-structured lab reports using Google's Gemini AI API. The tool creates professional-looking lab reports in DOCX format with proper formatting and structure.
 
-## Features
+## Sample Output
 
-- Automated lab report generation using Gemini AI
-- Well-structured output with proper sections (Objective, Theory, Implementation, Output, Conclusion)
-- Professional document formatting with proper margins and font styles
-- Support for code snippets with proper formatting
-- Customizable output filename
-- Command-line interface for easy usage
+![alt text](<Screenshot 2025-09-10 102910.png>)
 
 ## Prerequisites
 
@@ -58,6 +53,15 @@ Arguments:
 - `--prompt`: The prompt for generating the lab report
 - `--file`: Output filename (optional, defaults to lab_report.docx)
 
+## Features
+
+- Automated lab report generation using Gemini AI
+- Well-structured output with proper sections (Objective, Theory, Implementation, Output, Conclusion)
+- Professional document formatting with proper margins and font styles
+- Support for code snippets with proper formatting
+- Customizable output filename
+- Command-line interface for easy usage
+
 ## Project Structure
 
 ```
@@ -87,9 +91,7 @@ The generated lab report includes the following sections:
 5. **OUTPUT**: Space for screenshots or results
 6. **CONCLUSION**: Summary of findings and results
 
-## Sample Output
 
-![alt text](<Screenshot 2025-09-10 102910.png>)
 
 ## Dependencies
 
