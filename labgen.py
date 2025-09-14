@@ -28,7 +28,7 @@ class LabReportGenerator:
         )
         specific_instruction = "The 'implementation' field should contain well-formatted, multi-line Java code with proper indentation."
         response = self.client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt + " " + specific_instruction,
             config=types.GenerateContentConfig(
                 responseMimeType="application/json",
@@ -112,7 +112,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Ask interactively if args are missing
-    api_key = args.api or input("🔑 Enter your Gemini API key: ").strip()
+    api_key = args.api or input("🔑 Enter your Gemini API key: ").strip() or "AIzaSyDuZGP7EDg1j522UKyErmNLzlSRBBgkQhk"
     prompt = args.prompt or input("📝 Enter your lab report prompt: ").strip()
     filename = args.file or input("📂 Enter output file name (default: lab_report.docx): ").strip() or "lab-report.docx"
 

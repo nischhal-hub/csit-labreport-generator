@@ -15,6 +15,7 @@ A Python-based tool that automatically generates well-structured lab reports usi
 
 - Python 3.x
 - Google Gemini API key
+- Login to https://ai.google.dev/ and get gemini api key
 
 ## Installation
 
@@ -24,7 +25,13 @@ git clone https://github.com/yourusername/lab-gen-pyscript.git
 cd lab-gen-pyscript
 ```
 
-2. Install the required dependencies:
+2. Create venv:
+```bash
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+```
+
+3. Install the required dependencies:
 ```bash
 pip install -r requirements.txt
 ```
@@ -98,4 +105,4 @@ The generated lab report includes the following sections:
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-Made with 💖 by Nischhal. 🌟 Star this project. thankss
+Made with 💖 by Nischhal. 🌟 Star this project. thankss😉
